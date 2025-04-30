@@ -21,7 +21,11 @@ export const MoneyProvider = ({ children }) => {
   const fetchTransactions = async () => {
     try {
       const transactionData = await makeRequest("GET", "/transactions");
-      setTransactions(transactionData);
+      setTransactions(
+        transactionData.sort(
+          (a, b) => new Date(a.dueDate) - new Date(b.dueDate)
+        )
+      );
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -66,5 +70,5 @@ export const MoneyProvider = ({ children }) => {
 };
 
 export const useMoneyContext = () => {
-    return useContext(MoneyContext);
-}
+  return useContext(MoneyContext);
+};

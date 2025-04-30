@@ -20,12 +20,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { Calendar } from "./ui/calendar";
+import { CalendarIcon } from "lucide-react"
+import {format} from "date-fns";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
 import { useMoneyContext } from "@/context/MoneyContext";
 
 const formSchema = z.object({
   friendId: z.string().min(1, "Please select a frined"),
   amount: z.coerce.number().positive("Amount must be positive"),
   direction: z.enum(["paid", "received"]),
+  transactionDate: z.date({
+    required_error: "Please select a date",
+  })
 });
 
 const TransactionForm = () => {
@@ -36,6 +47,7 @@ const TransactionForm = () => {
       friendId: "",
       amount: 0,
       direction: "paid",
+      transactionDate: new Date(),
     },
   });
 
@@ -45,6 +57,7 @@ const TransactionForm = () => {
             friend: values.friendId,
             amount: values.amount,
             direction: values.direction,
+            transactionDate: values.transactionDate.toISOString(),
         });
         form.reset();
     } catch (error) {
@@ -59,6 +72,42 @@ const TransactionForm = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+          control={form.control}
+          name="transactionDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Transaction Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
             <FormField
               control={form.control}
               name="friendId"
