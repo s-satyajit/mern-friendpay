@@ -10,6 +10,7 @@ const transactionSchema = new mongoose.Schema(
     },
     amount: { type: Number, required: true },
     direction: { type: String, enum: ["paid", "received"], required: true },
+    transactionDate: {type: Date, required: true},
     dueDate: { type: Date, required: true },
   },
   { timestamps: true }

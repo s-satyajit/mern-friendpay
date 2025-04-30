@@ -6,15 +6,15 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { friend, amount, direction } = req.body;
+    const { friend, amount, direction, transactionDate } = req.body;
     const friendData = await Friend.findById(friend);
     if (!friendData) {
       return res.status(404).json({ message: "Friend not found" });
     }
 
+    const dueDate = new Date(transactionDate);
     const repaymentDays =
       direction === "paid" ? friendData.repaymentPeriod : 30;
-    const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + repaymentDays);
 
     const newTransaction = await Transaction.create({
@@ -22,8 +22,12 @@ router.post("/", async (req, res) => {
       friend,
       amount,
       direction,
+      transactionDate: new Date(transactionDate),
       dueDate,
     });
+
+    const populateTransaction = await Transaction.findById(newTransaction._id)
+        .populate('friend', 'name repaymentPeriod')
 
     res.status(201).json(newTransaction);
   } catch (error) {
