@@ -54,8 +54,8 @@ export const calculateWeeklyAmounts = (
         .reduce((total, transaction) => {
           const amount =
             transaction.direction === "paid"
-              ? -transaction.amount
-              : transaction.amount;
+              ? transaction.amount
+              : -transaction.amount;
           return total + amount;
         }, 0);
 

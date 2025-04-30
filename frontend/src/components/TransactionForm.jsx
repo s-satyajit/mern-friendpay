@@ -1,9 +1,4 @@
-import React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { useForm } from "react-hook-form";
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -13,22 +8,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Calendar } from "./ui/calendar";
-import { CalendarIcon } from "lucide-react"
-import {format} from "date-fns";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover"
 import { useMoneyContext } from "@/context/MoneyContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
+import { Input } from "./ui/input";
 
 const formSchema = z.object({
   friendId: z.string().min(1, "Please select a frined"),
@@ -36,77 +36,81 @@ const formSchema = z.object({
   direction: z.enum(["paid", "received"]),
   transactionDate: z.date({
     required_error: "Please select a date",
-  })
+  }),
 });
 
 const TransactionForm = () => {
+  const [open, setOpen] = useState(false);
   const { friends, addTransaction, loading } = useMoneyContext();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       friendId: "",
-      amount: 0,
+      amount: "",
       direction: "paid",
       transactionDate: new Date(),
     },
   });
 
-  const onSubmit = async(values) => {
+  const onSubmit = async (values) => {
     try {
-        await addTransaction({
-            friend: values.friendId,
-            amount: values.amount,
-            direction: values.direction,
-            transactionDate: values.transactionDate.toISOString(),
-        });
-        form.reset();
+      await addTransaction({
+        friend: values.friendId,
+        amount: values.amount,
+        direction: values.direction,
+        transactionDate: values.transactionDate.toISOString(),
+      });
+      form.reset();
     } catch (error) {
-        console.error("Transaction failed:", error);
+      console.error("Transaction failed:", error);
     }
-  }
+  };
 
   return (
     <>
-      <Card className="p-6 max-w-md mx-auto">
+      <Card className="p-6 mt-6 max-w-md mx-auto">
         <h2 className="text-xl font-semibold mb-4">Update Transaction</h2>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
-          control={form.control}
-          name="transactionDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Transaction Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              control={form.control}
+              name="transactionDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Transaction Date</FormLabel>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setTimeout(() => setOpen(false), 100);
+                        }}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -147,6 +151,7 @@ const TransactionForm = () => {
                       type="number"
                       placeholder="Enter amount"
                       {...field}
+                      value={field.value === 0 ? "" : field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -165,6 +170,7 @@ const TransactionForm = () => {
                       type="button"
                       variant={field.value === "paid" ? "default" : "outline"}
                       onClick={() => field.onChange("paid")}
+                      className="hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-sm hover:shadow-md"
                     >
                       Paid
                     </Button>
@@ -174,6 +180,7 @@ const TransactionForm = () => {
                         field.value === "received" ? "default" : "outline"
                       }
                       onClick={() => field.onChange("received")}
+                      className="hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-sm hover:shadow-md"
                     >
                       Received
                     </Button>
@@ -184,10 +191,11 @@ const TransactionForm = () => {
             />
 
             <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-            >{loading ? "Processing..." : "Add Transaction"}
+              type="submit"
+              className="w-full hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-sm hover:shadow-md"
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Add Transaction"}
             </Button>
           </form>
         </Form>

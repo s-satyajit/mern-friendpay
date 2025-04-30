@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
 import useApiClient from "@/hooks/useApiClient";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export const MoneyContext = createContext();
 
@@ -38,12 +38,11 @@ export const MoneyProvider = ({ children }) => {
         "/transactions",
         transaction
       );
-      setTransactions((prevTransactions) => [
-        ...prevTransactions,
-        newTransaction,
-      ]);
+      await fetchTransactions();
+      return newTransaction;
     } catch (error) {
       console.error("Error adding transaction:", error);
+      throw error;
     }
   };
 
