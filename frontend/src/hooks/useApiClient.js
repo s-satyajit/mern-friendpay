@@ -1,6 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-import { get } from "http";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:5000/api",

@@ -1,10 +1,11 @@
+import TransactionForm from "./components/TransactionForm"
 
 
 function App() {
 
   return (
     <>
-      <div className="bg-green-500">test</div>
+      <TransactionForm />
     </>
   )
 }
