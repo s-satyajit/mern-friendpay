@@ -1,7 +1,6 @@
-// src/components/ui/donut-chart.jsx
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-const COLORS = ['#64748b', '#3b82f6'];
+const COLORS = ["#64748b", "#3b82f6"];
 
 export const DonutChart = ({ data, netAmount }) => {
   return (
@@ -30,7 +29,7 @@ export const DonutChart = ({ data, netAmount }) => {
             y="45%"
             textAnchor="middle"
             className={`text-2xl font-bold ${
-              netAmount >= 0 ? 'text-green-600' : 'text-red-600'
+              netAmount >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
             ₹{Math.abs(netAmount).toLocaleString()}
@@ -41,7 +40,7 @@ export const DonutChart = ({ data, netAmount }) => {
             textAnchor="middle"
             className="text-sm text-muted-foreground"
           >
-            {netAmount >= 0 ? 'Net Gain' : 'Net Due'}
+            {netAmount >= 0 ? "Net Gain" : "Net Due"}
           </text>
         </PieChart>
       </ResponsiveContainer>
